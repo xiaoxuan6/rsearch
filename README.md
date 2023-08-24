@@ -13,7 +13,7 @@
 同步数据到本地 `sqlite`
 
 ```darcs
-rsearch sync
+rsearch sync # --path="文件夹所在位置"
 ```
 
 查看所有数据
