@@ -1,6 +1,7 @@
 package main
 
 import (
+    "errors"
     "github.com/common-nighthawk/go-figure"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
@@ -48,6 +49,22 @@ func main() {
                 Description: figure.NewFigure("rsearch sync", "", true).String() +
                     "同步远程数据保存到本地 sqlite 数据库",
                 Action: command.Run,
+                Flags: []cli.Flag{
+                    // rsearch sync --path="xxx"
+                    &cli.StringFlag{
+                        Name:     "RepositoryPath",
+                        Aliases:  []string{"path"},
+                        Required: false,
+                        Value:    common.RepositoryPathDefault,
+                        EnvVars:  []string{"REPOSITORY_PATH"},
+                        Action: func(context *cli.Context, s string) error {
+                            if _, err := os.Stat(s); os.IsNotExist(err) {
+                                return errors.New("给定参数 `" + s + "` 不存在")
+                            }
+                            return nil
+                        },
+                    },
+                },
             },
         },
     }

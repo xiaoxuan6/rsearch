@@ -1,6 +1,7 @@
 package command
 
 import (
+    "errors"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "io/ioutil"
@@ -13,9 +14,18 @@ import (
 )
 
 func Run(ctx *cli.Context) error {
+    common.RepositoryPath = ctx.String("RepositoryPath")
+    if _, err := os.Stat(common.RepositoryPath); os.IsNotExist(err) {
+        return errors.New("文件夹 `" + common.RepositoryPath + "` 不存在, 请指定参数 `path`")
+    }
+
     files, err := fetchFiles()
     if err != nil {
         return err
+    }
+
+    if len(files) < 1 {
+        return errors.New("文件夹中不包含 `.md` 文件")
     }
 
     var wg sync.WaitGroup
@@ -41,12 +51,7 @@ func Run(ctx *cli.Context) error {
 }
 
 func fetchFiles() (files []string, err error) {
-    dir, err := os.Getwd()
-    if err != nil {
-        return files, err
-    }
-
-    path := dir + common.RepositoryPath
+    path := common.RepositoryPath
     dirFiles, err := ioutil.ReadDir(path)
     if err != nil {
         return files, err
