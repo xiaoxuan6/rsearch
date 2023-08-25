@@ -6,14 +6,25 @@ import (
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "os"
+    "path/filepath"
     "rsearch/command"
     "rsearch/common"
     "strconv"
 )
 
 func main() {
+    firstArg := os.Args[0]
+    _, file := filepath.Split(firstArg)
 
-    common.InitDb(common.SqlitePath)
+    var basePath string
+    if file == "main.exe" {
+        basePath = "."
+    } else {
+        ex, _ := os.Executable()
+        basePath = filepath.Dir(ex)
+    }
+
+    common.InitDb(basePath + "/" + common.SqlitePath)
     defer func() {
         common.CloseDb()
     }()
@@ -27,11 +38,6 @@ func main() {
         }
 
         if os.Args[1] != common.CommandName {
-            if _, err := os.Stat(common.SqlitePath); os.IsNotExist(err) {
-                logrus.Error("sqlite db not exist, 请执行 `rsearch sync` 在重试")
-                os.Exit(0)
-            }
-
             command.Search(os.Args[1])
             os.Exit(0)
         }
