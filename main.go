@@ -31,9 +31,14 @@ func main() {
 
     if len(os.Args) > 1 {
 
-        if os.Args[1] == "count" {
+        switch os.Args[1] {
+        case "count":
             num := common.Count()
             logrus.Info("数据库总条数为：" + strconv.Itoa(int(num)))
+            os.Exit(0)
+        case "clear":
+            _ = common.Clear()
+            logrus.Info("数据清空成功")
             os.Exit(0)
         }
 
@@ -50,8 +55,8 @@ func main() {
         Description: figure.NewFigure("rsearch", "", true).String(),
         Commands: []*cli.Command{
             {
-                Name:    common.CommandName,
-                Aliases: []string{"s 同步远程数据保存到本地 sqlite 数据库"},
+                Name:  common.CommandName,
+                Usage: "同步远程数据保存到本地 sqlite 数据库",
                 Description: figure.NewFigure("rsearch sync", "", true).String() +
                     "同步远程数据保存到本地 sqlite 数据库",
                 Action: command.Run,
@@ -71,6 +76,14 @@ func main() {
                         },
                     },
                 },
+            },
+            {
+                Name:  "clear",
+                Usage: "清空所有数据",
+            },
+            {
+                Name:  "count",
+                Usage: "查询数据总条数",
             },
         },
     }
