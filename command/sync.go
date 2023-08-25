@@ -28,6 +28,11 @@ func Run(ctx *cli.Context) error {
         return errors.New("文件夹中不包含 `.md` 文件")
     }
 
+    err = common.Clear()
+    if err != nil {
+        logrus.Error("清空数据失败：" + err.Error())
+    }
+
     var wg sync.WaitGroup
     for _, file := range files {
         logrus.Info("正在同步文件：" + file)

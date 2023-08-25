@@ -41,3 +41,8 @@ func CreateInBatches(models []Model) (err error) {
     err = DB.CreateInBatches(models, 100).Error
     return err
 }
+
+func Clear() (err error) {
+    err = DB.Where("1 = 1").Delete(&Model{}).Error
+    return err
+}
