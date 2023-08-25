@@ -1,6 +1,7 @@
 package command
 
 import (
+    "github.com/charmbracelet/glamour"
     "github.com/olekukonko/tablewriter"
     "github.com/sirupsen/logrus"
     "os"
@@ -25,8 +26,14 @@ func Search(keyword string) {
 
     table := tablewriter.NewWriter(os.Stdout)
     table.SetHeader([]string{"标题", "标签", "地址"})
+
+    tr, _ := glamour.NewTermRenderer(
+        glamour.WithAutoStyle(),
+        glamour.WithWordWrap(-1),
+    )
     for _, val := range models {
-        table.Append([]string{val.Title, val.Tag, val.Url})
+        renderUrl, _ := tr.Render(val.Url)
+        table.Append([]string{val.Title, val.Tag, renderUrl})
     }
     table.Render()
 }
