@@ -30,8 +30,9 @@ func main() {
     }()
 
     if len(os.Args) > 1 {
-        if os.Args[1] != common.CommandName && os.Args[1] != common.GoCommandName && os.Args[1] != "count" && os.Args[1] != "clear" {
-            if os.Args[1] == common.GoTagName {
+        param := os.Args[1]
+        if param != common.CommandName && param != common.GoCommandName && param != "count" && param != "clear" && param != "resync" {
+            if param == common.GoTagName {
                 commands.TermRenderer()
                 os.Exit(0)
             }
@@ -40,7 +41,7 @@ func main() {
             if len(os.Args) == 3 {
                 tag = os.Args[2]
             }
-            commands.Search(os.Args[1], tag)
+            commands.Search(param, tag)
             os.Exit(0)
         }
     }
@@ -95,6 +96,16 @@ func main() {
                 Usage:       common.GoCommandUsage,
                 Description: figure.NewFigure("rsearch sync-go", "", true).String() + common.GoCommandUsage,
                 Action:      commands.Exec,
+            },
+            {
+                Name:        "resync",
+                Usage:       "重新同步所有数据",
+                Description: figure.NewFigure("rsearch resync", "", true).String(),
+                Action: func(context *cli.Context) error {
+                    _ = commands.Run(context)
+                    _ = commands.Exec(context)
+                    return nil
+                },
             },
         },
     }
