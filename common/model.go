@@ -21,6 +21,11 @@ func Search(keyword string) (model []*Model, err error) {
     return model, err
 }
 
+func SearchWithTag(keyword, tag string) (model []*Model, err error) {
+    err = DB.Where("tag = ? and title LIKE ?", tag, "%"+keyword+"%").Find(&model).Error
+    return model, err
+}
+
 func All() (model []*Model, err error) {
     err = DB.Find(&model).Error
     return model, err

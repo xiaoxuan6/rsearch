@@ -7,7 +7,7 @@ import (
     "github.com/urfave/cli/v2"
     "os"
     "path/filepath"
-    "rsearch/command"
+    "rsearch/commands"
     "rsearch/common"
     "strconv"
 )
@@ -30,23 +30,19 @@ func main() {
     }()
 
     if len(os.Args) > 1 {
+        if os.Args[1] != common.CommandName && os.Args[1] != common.GoCommandName && os.Args[1] != "count" && os.Args[1] != "clear" {
+            if os.Args[1] == common.GoTagName {
+                commands.TermRenderer()
+                os.Exit(0)
+            }
 
-        switch os.Args[1] {
-        case "count":
-            num := common.Count()
-            logrus.Info("数据库总条数为：" + strconv.Itoa(int(num)))
-            os.Exit(0)
-        case "clear":
-            _ = common.Clear()
-            logrus.Info("数据清空成功")
-            os.Exit(0)
-        }
-
-        if os.Args[1] != common.CommandName {
-            command.Search(os.Args[1])
+            tag := ""
+            if len(os.Args) == 3 {
+                tag = os.Args[2]
+            }
+            commands.Search(os.Args[1], tag)
             os.Exit(0)
         }
-
     }
 
     app := cli.App{
@@ -55,11 +51,10 @@ func main() {
         Description: figure.NewFigure("rsearch", "", true).String(),
         Commands: []*cli.Command{
             {
-                Name:  common.CommandName,
-                Usage: "同步远程数据保存到本地 sqlite 数据库",
-                Description: figure.NewFigure("rsearch sync", "", true).String() +
-                    "同步远程数据保存到本地 sqlite 数据库",
-                Action: command.Run,
+                Name:        common.CommandName,
+                Usage:       common.CommandUsage,
+                Description: figure.NewFigure("rsearch sync", "", true).String() + common.CommandUsage,
+                Action:      commands.Run,
                 Flags: []cli.Flag{
                     // rsearch sync --path="xxx"
                     &cli.StringFlag{
@@ -80,10 +75,26 @@ func main() {
             {
                 Name:  "clear",
                 Usage: "清空所有数据",
+                Action: func(context *cli.Context) error {
+                    _ = common.Clear()
+                    logrus.Info("数据清空成功")
+                    return nil
+                },
             },
             {
                 Name:  "count",
                 Usage: "查询数据总条数",
+                Action: func(context *cli.Context) error {
+                    num := common.Count()
+                    logrus.Info("数据库总条数为：" + strconv.Itoa(int(num)))
+                    return nil
+                },
+            },
+            {
+                Name:        common.GoCommandName,
+                Usage:       common.GoCommandUsage,
+                Description: figure.NewFigure("rsearch sync-go", "", true).String() + common.GoCommandUsage,
+                Action:      commands.Exec,
             },
         },
     }

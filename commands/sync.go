@@ -1,4 +1,4 @@
-package command
+package commands
 
 import (
     "errors"
@@ -52,7 +52,7 @@ func Run(ctx *cli.Context) error {
     wg.Wait()
     logrus.Info("sync successfully")
 
-    return err
+    return nil
 }
 
 func fetchFiles() (files []string, err error) {
