@@ -12,16 +12,9 @@ import (
 )
 
 func Exec(c *cli.Context) error {
-    response, err := http.Get(common.GoPackageRepository)
-    if err != nil {
-        return errors.New("请求错误：" + err.Error())
-    }
-
-    defer response.Body.Close()
-
-    b, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        return errors.New("获取内容失败：" + err.Error())
+    b, err2 := fileGetContent()
+    if err2 != nil {
+        return err2
     }
 
     newContent := string(b)
@@ -49,6 +42,22 @@ func Exec(c *cli.Context) error {
     }
 
     return nil
+}
+
+func fileGetContent() (b []byte, err error) {
+    response, err := http.Get(common.GoPackageRepository)
+    if err != nil {
+        return b, errors.New("请求错误：" + err.Error())
+    }
+
+    defer response.Body.Close()
+
+    b, err = ioutil.ReadAll(response.Body)
+    if err != nil {
+        return b, errors.New("获取内容失败：" + err.Error())
+    }
+
+    return b, nil
 }
 
 func regexpContent(val string) []string {

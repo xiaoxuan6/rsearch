@@ -5,8 +5,6 @@ import (
     "github.com/charmbracelet/glamour"
     "github.com/olekukonko/tablewriter"
     "github.com/sirupsen/logrus"
-    "io/ioutil"
-    "net/http"
     "os"
     "rsearch/common"
     "strings"
@@ -47,17 +45,9 @@ func Search(keyword, tag string) {
 }
 
 func TermRenderer() {
-    response, err := http.Get(common.GoPackageRepository)
-    if err != nil {
-        logrus.Error("请求错误：" + err.Error())
-        return
-    }
-
-    defer response.Body.Close()
-
-    b, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        logrus.Error("获取内容失败：" + err.Error())
+    b, err2 := fileGetContent()
+    if err2 != nil {
+        logrus.Error(err.Error())
         return
     }
 
