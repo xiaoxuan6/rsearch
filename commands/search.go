@@ -4,6 +4,7 @@ import (
     "fmt"
     "github.com/charmbracelet/glamour"
     "github.com/olekukonko/tablewriter"
+    "github.com/pibigstar/termcolor"
     "github.com/sirupsen/logrus"
     "os"
     "rsearch/common"
@@ -32,14 +33,9 @@ func Search(keyword, tag string) {
     table := tablewriter.NewWriter(os.Stdout)
     table.SetHeader([]string{"标题", "标签", "地址"})
     table.SetRowLine(true)
-
-    tr, _ := glamour.NewTermRenderer(
-        glamour.WithAutoStyle(),
-        glamour.WithWordWrap(-1),
-    )
     for _, val := range models {
-        renderUrl, _ := tr.Render(val.Url)
-        table.Append([]string{val.Title, val.Tag, renderUrl})
+        greenUrl := termcolor.FgGreen(val.Url)
+        table.Append([]string{val.Title, val.Tag, greenUrl})
     }
     table.Render()
 }

@@ -77,7 +77,7 @@ func main() {
                 Name:  "clear",
                 Usage: "清空所有数据",
                 Action: func(context *cli.Context) error {
-                    _ = common.Clear()
+                    _ = common.Flush()
                     logrus.Info("数据清空成功")
                     return nil
                 },

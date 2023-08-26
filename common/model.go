@@ -56,3 +56,8 @@ func DeleteByTag(tag string) error {
     err := DB.Where("tag = ?", tag).Delete(&Model{}).Error
     return err
 }
+
+func Flush() (err error) {
+    err = DB.Where("1 = 1").Delete(&Model{}).Error
+    return err
+}
