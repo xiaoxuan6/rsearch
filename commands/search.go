@@ -15,6 +15,7 @@ var err error
 var models []*common.Model
 
 func Search(keyword, tag string) {
+    target := false
     if strings.ToLower(keyword) == "all" {
         models, err = common.All()
     } else if tag != "" && keyword == "" {
@@ -22,6 +23,7 @@ func Search(keyword, tag string) {
     } else if tag != "" {
         models, err = common.SearchWithTag(keyword, tag)
     } else {
+        target = true
         models, err = common.Search(keyword)
     }
 
@@ -34,8 +36,16 @@ func Search(keyword, tag string) {
     table.SetHeader([]string{"标题", "标签", "地址"})
     table.SetRowLine(true)
     for _, val := range models {
+
+        var title string
+        if target {
+            title = strings.ReplaceAll(val.Title, keyword, termcolor.BgRed(keyword))
+        } else {
+            title = val.Title
+        }
+
         greenUrl := termcolor.FgGreen(val.Url)
-        table.Append([]string{val.Title, val.Tag, greenUrl})
+        table.Append([]string{title, val.Tag, greenUrl})
     }
     table.Render()
 }
