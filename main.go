@@ -1,15 +1,17 @@
 package main
 
 import (
-    "errors"
     "github.com/common-nighthawk/go-figure"
+    "github.com/olekukonko/tablewriter"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
+    "io/ioutil"
     "os"
     "path/filepath"
     "rsearch/commands"
     "rsearch/common"
     "strconv"
+    "strings"
 )
 
 func main() {
@@ -30,8 +32,18 @@ func main() {
     }()
 
     if len(os.Args) > 1 {
+        commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h"}
+
+        target := false
         param := os.Args[1]
-        if param != common.CommandName && param != common.GoCommandName && param != "count" && param != "clear" && param != "resync" {
+        for _, val := range commandNames {
+            if strings.Compare(param, val) == 0 {
+                target = true
+                continue
+            }
+        }
+
+        if target == false {
             if param == common.GoTagName {
                 commands.TermRenderer()
                 os.Exit(0)
@@ -57,19 +69,11 @@ func main() {
                 Description: figure.NewFigure("rsearch sync", "", true).String() + common.CommandUsage,
                 Action:      commands.Run,
                 Flags: []cli.Flag{
-                    // rsearch sync --path="xxx"
                     &cli.StringFlag{
-                        Name:     "RepositoryPath",
-                        Aliases:  []string{"path"},
+                        Name:     "token",
+                        Aliases:  []string{"t"},
                         Required: false,
-                        Value:    common.RepositoryPathDefault,
-                        EnvVars:  []string{"REPOSITORY_PATH"},
-                        Action: func(context *cli.Context, s string) error {
-                            if _, err := os.Stat(s); os.IsNotExist(err) {
-                                return errors.New("给定参数 `" + s + "` 不存在")
-                            }
-                            return nil
-                        },
+                        Value:    "",
                     },
                 },
             },
@@ -98,12 +102,20 @@ func main() {
                 Action:      commands.Exec,
             },
             {
-                Name:        "resync",
-                Usage:       "重新同步所有数据",
-                Description: figure.NewFigure("rsearch resync", "", true).String(),
+                Name:        "tags",
+                Usage:       "获取所有的标签",
+                Description: figure.NewFigure("rsearch tags", "", true).String(),
                 Action: func(context *cli.Context) error {
-                    _ = commands.Run(context)
-                    _ = commands.Exec(context)
+                    b, _ := ioutil.ReadFile(common.RepositoryFilename)
+                    content := strings.Split(strings.TrimSpace(string(b)), "\n")
+
+                    table := tablewriter.NewWriter(os.Stdout)
+                    table.SetHeader([]string{"标签"})
+                    for _, val := range content {
+                        table.Append([]string{strings.ReplaceAll(val, ".md", "")})
+                    }
+                    table.Render()
+
                     return nil
                 },
             },

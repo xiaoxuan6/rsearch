@@ -1,52 +1,47 @@
 package commands
 
 import (
+    "context"
     "errors"
+    "fmt"
+    "github.com/google/go-github/v48/github"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
+    "golang.org/x/oauth2"
     "io/ioutil"
-    "os"
-    "path/filepath"
     "regexp"
     "rsearch/common"
     "strings"
     "sync"
 )
 
+var wg sync.WaitGroup
+
 func Run(ctx *cli.Context) error {
-    common.RepositoryPath = ctx.String("RepositoryPath")
-    if _, err := os.Stat(common.RepositoryPath); os.IsNotExist(err) {
-        return errors.New("文件夹 `" + common.RepositoryPath + "` 不存在, 请指定参数 `path`")
-    }
 
-    files, err := fetchFiles()
-    if err != nil {
-        return err
-    }
-
-    if len(files) < 1 {
-        return errors.New("文件夹中不包含 `.md` 文件")
+    token := ctx.String("token")
+    if token == "" {
+        return errors.New("github token not empty")
     }
 
     err = common.Clear()
     if err != nil {
-        logrus.Error("清空数据失败：" + err.Error())
+        return errors.New(fmt.Sprintf("清空数据失败：%s", err.Error()))
     }
 
-    var wg sync.WaitGroup
-    for _, file := range files {
-        logrus.Info("正在同步文件：" + file)
-        //dir, _ := os.Getwd()
-        //file := dir + common.RepositoryPath + "/README.md"
-        b, err := ioutil.ReadFile(file)
-        if err != nil {
-            logrus.Printf("文件 %s 读取失败：%s", file, err.Error())
-            continue
-        }
+    c := context.Background()
+    oauth := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+    client := github.NewClient(oauth)
 
+    b, err2 := ioutil.ReadFile(common.RepositoryFilename)
+    if err2 != nil {
+        return errors.New(fmt.Sprintf("读取文件失败：%s", err2.Error()))
+    }
+
+    content := strings.Split(strings.TrimSpace(string(b)), "\n")
+    for _, val := range content {
         wg.Add(1)
-        tagName := strings.ToLower(strings.Trim(filepath.Base(file), ".md"))
-        go fetchFileContent(&wg, b, tagName)
+        go fetchUrlContent(c, client, val, &wg)
     }
 
     wg.Wait()
@@ -55,21 +50,21 @@ func Run(ctx *cli.Context) error {
     return nil
 }
 
-func fetchFiles() (files []string, err error) {
-    path := common.RepositoryPath
-    dirFiles, err := ioutil.ReadDir(path)
-    if err != nil {
-        return files, err
+func fetchUrlContent(ctx context.Context, client *github.Client, filename string, wg *sync.WaitGroup) {
+    RepositoryContent, _, _, err2 := client.Repositories.GetContents(ctx, common.Owner, common.Repo, filename, &github.RepositoryContentGetOptions{})
+    if err2 != nil {
+        logrus.Error(err2.Error())
+        wg.Done()
+        return
     }
 
-    for _, file := range dirFiles {
-        fileName := file.Name()
-        if strings.ToLower(filepath.Ext(fileName)) == ".md" {
-            files = append(files, path+"/"+fileName)
-        }
+    content, err3 := RepositoryContent.GetContent()
+    if err3 != nil {
+        wg.Done()
+        return
     }
 
-    return files, err
+    fetchFileContent(wg, []byte(content), strings.ReplaceAll(filename, ".md", ""))
 }
 
 func fetchFileContent(wg *sync.WaitGroup, b []byte, tag string) {

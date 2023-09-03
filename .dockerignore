@@ -1,0 +1,10 @@
+.idea
+rsearch.db
+rsearch.exe
+rsearch.db-journal
+Makefile
+README.md
+LICENSE
+.editorconfig
+.gitignore
+.github
