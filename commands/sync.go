@@ -20,6 +20,10 @@ var c = context.Background()
 func Run(ctx *cli.Context) error {
 
     token := ctx.String("token")
+    if len(token) < 1 {
+        token = FetchToken()
+    }
+
     if token == "" {
         return errors.New("github token not empty")
     }
