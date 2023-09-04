@@ -8,7 +8,6 @@ import (
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "golang.org/x/oauth2"
-    "io/ioutil"
     "regexp"
     "rsearch/common"
     "strings"
@@ -16,6 +15,7 @@ import (
 )
 
 var wg sync.WaitGroup
+var c = context.Background()
 
 func Run(ctx *cli.Context) error {
 
@@ -29,25 +29,33 @@ func Run(ctx *cli.Context) error {
         return errors.New(fmt.Sprintf("清空数据失败：%s", err.Error()))
     }
 
-    c := context.Background()
-    oauth := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
-    client := github.NewClient(oauth)
-
-    b, err2 := ioutil.ReadFile(common.RepositoryFilename)
-    if err2 != nil {
-        return errors.New(fmt.Sprintf("读取文件失败：%s", err2.Error()))
-    }
-
-    content := strings.Split(strings.TrimSpace(string(b)), "\n")
-    for _, val := range content {
-        wg.Add(1)
-        go fetchUrlContent(c, client, val, &wg)
+    client := fetchClient(token)
+    directoryContent := fetchRepositoryContent(client)
+    for _, val := range directoryContent {
+        filename := val.GetName()
+        if strings.HasSuffix(filename, ".md") {
+            wg.Add(1)
+            logrus.Info("正在同步文件：" + filename)
+            go fetchUrlContent(c, client, filename, &wg)
+        }
     }
 
     wg.Wait()
     logrus.Info("sync successfully")
 
     return nil
+}
+
+func fetchClient(token string) *github.Client {
+    oauth := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
+    client := github.NewClient(oauth)
+
+    return client
+}
+
+func fetchRepositoryContent(client *github.Client) []*github.RepositoryContent {
+    _, directoryContent, _, _ := client.Repositories.GetContents(c, common.Owner, common.Repo, "", &github.RepositoryContentGetOptions{})
+    return directoryContent
 }
 
 func fetchUrlContent(ctx context.Context, client *github.Client, filename string, wg *sync.WaitGroup) {

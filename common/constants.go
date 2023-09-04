@@ -2,7 +2,6 @@ package common
 
 const Owner = "xiaoxuan6"
 const Repo = "resource"
-const RepositoryFilename = "filename.txt"
 
 const CommandName = "sync"
 const CommandUsage = "同步远程数据保存到本地 sqlite 数据库"

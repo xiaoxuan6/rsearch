@@ -2,10 +2,8 @@ package main
 
 import (
     "github.com/common-nighthawk/go-figure"
-    "github.com/olekukonko/tablewriter"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
-    "io/ioutil"
     "os"
     "path/filepath"
     "rsearch/commands"
@@ -68,14 +66,7 @@ func main() {
                 Usage:       common.CommandUsage,
                 Description: figure.NewFigure("rsearch sync", "", true).String() + common.CommandUsage,
                 Action:      commands.Run,
-                Flags: []cli.Flag{
-                    &cli.StringFlag{
-                        Name:     "token",
-                        Aliases:  []string{"t"},
-                        Required: false,
-                        Value:    "",
-                    },
-                },
+                Flags:       commands.Flags(),
             },
             {
                 Name:  "clear",
@@ -105,19 +96,8 @@ func main() {
                 Name:        "tags",
                 Usage:       "获取所有的标签",
                 Description: figure.NewFigure("rsearch tags", "", true).String(),
-                Action: func(context *cli.Context) error {
-                    b, _ := ioutil.ReadFile(common.RepositoryFilename)
-                    content := strings.Split(strings.TrimSpace(string(b)), "\n")
-
-                    table := tablewriter.NewWriter(os.Stdout)
-                    table.SetHeader([]string{"标签"})
-                    for _, val := range content {
-                        table.Append([]string{strings.ReplaceAll(val, ".md", "")})
-                    }
-                    table.Render()
-
-                    return nil
-                },
+                Action:      commands.Runs,
+                Flags:       commands.Flags(),
             },
         },
     }
