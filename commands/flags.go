@@ -19,7 +19,7 @@ func Flags() (f []cli.Flag) {
     return
 }
 
-func FetchToken() string {
+func fetchToken() string {
     cmd := exec.Command("sh", "-c", "git config --list | grep 'search.workflow.token'")
     stdout, err2 := cmd.Output()
     if err2 != nil {

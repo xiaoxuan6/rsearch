@@ -21,7 +21,7 @@ func Run(ctx *cli.Context) error {
 
     token := ctx.String("token")
     if len(token) < 1 {
-        token = FetchToken()
+        token = fetchToken()
     }
 
     if token == "" {

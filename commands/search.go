@@ -11,8 +11,10 @@ import (
     "strings"
 )
 
-var err error
-var models []*common.Model
+var (
+    err    error
+    models []*common.Model
+)
 
 func Search(keyword, tag string) {
     target := false
@@ -39,15 +41,39 @@ func Search(keyword, tag string) {
 
         var title string
         if target {
-            title = strings.ReplaceAll(val.Title, keyword, termcolor.BgRed(keyword))
+            title = replaceKeyword(val.Title, keyword)
         } else {
             title = val.Title
         }
 
-        greenUrl := termcolor.FgGreen(val.Url)
-        table.Append([]string{title, val.Tag, greenUrl})
+        tag = val.Tag
+        if strings.ToLower(keyword) == strings.ToLower(tag) {
+            tag = termcolor.BgRed(tag)
+        }
+
+        url := val.Url
+        if strings.HasPrefix(url, "github") {
+            url = "https://" + url
+        }
+
+        table.Append([]string{title, tag, termcolor.FgGreen(url)})
     }
     table.Render()
+}
+
+func replaceKeyword(title, keyword string) string {
+    var keywords []string
+    if _, ok := common.FgColor[keyword]; ok {
+        keywords = common.FgColor[keyword]
+    } else {
+        keywords = []string{keyword}
+    }
+
+    for _, val := range keywords {
+        title = strings.ReplaceAll(title, val, termcolor.BgRed(val))
+    }
+
+    return title
 }
 
 func TermRenderer() {
