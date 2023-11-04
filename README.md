@@ -4,10 +4,13 @@
 
 <img src="https://x.imgs.ovh/x/2023/09/04/64f531af6c5c1.png"  style="width: 50%;" />
 
-> ** Notice: **
+> [!NOTE]
 > 该项目自用，如果想使用该工具。
+>
 > 1、 fork 该项目
+> 
 > 2、 修改 `common/constants.go` 中的 `Owner` 和 `Repo` 为自己的 `github` 账号和仓库
+> 
 > 3、 `go install github.com/github账号/rsearch@latest`
 
 # Install
