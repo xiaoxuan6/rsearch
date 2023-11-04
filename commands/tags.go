@@ -4,8 +4,8 @@ import (
     "errors"
     "github.com/olekukonko/tablewriter"
     "github.com/urfave/cli/v2"
+    "github.com/xiaoxuan6/rsearch/common"
     "os"
-    "rsearch/common"
     "strings"
 )
 

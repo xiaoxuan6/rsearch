@@ -6,10 +6,10 @@ import (
     "github.com/mitchellh/go-homedir"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
+    "github.com/xiaoxuan6/rsearch/commands"
+    "github.com/xiaoxuan6/rsearch/common"
     "os"
     "path/filepath"
-    "rsearch/commands"
-    "rsearch/common"
     "strconv"
     "strings"
 )

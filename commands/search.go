@@ -6,8 +6,8 @@ import (
     "github.com/olekukonko/tablewriter"
     "github.com/pibigstar/termcolor"
     "github.com/sirupsen/logrus"
+    "github.com/xiaoxuan6/rsearch/common"
     "os"
-    "rsearch/common"
     "strings"
 )
 

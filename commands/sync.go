@@ -7,9 +7,9 @@ import (
     "github.com/google/go-github/v48/github"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
+    "github.com/xiaoxuan6/rsearch/common"
     "golang.org/x/oauth2"
     "regexp"
-    "rsearch/common"
     "strings"
     "sync"
 )

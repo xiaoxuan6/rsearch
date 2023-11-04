@@ -4,10 +4,10 @@ import (
     "errors"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
+    "github.com/xiaoxuan6/rsearch/common"
     "io/ioutil"
     "net/http"
     "regexp"
-    "rsearch/common"
     "strings"
 )
 
