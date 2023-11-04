@@ -4,6 +4,12 @@
 
 <img src="https://x.imgs.ovh/x/2023/09/04/64f531af6c5c1.png"  style="width: 50%;" />
 
+> ** Notice: **
+> 该项目自用，如果想使用该工具。
+> 1、 fork 该项目
+> 2、 修改 `common/constants.go` 中的 `Owner` 和 `Repo` 为自己的 `github` 账号和仓库
+> 3、 `go install github.com/github账号/rsearch@latest`
+
 # Install
 
 ```bash
@@ -25,4 +31,5 @@ rsearch all             # 查看所有数据
 rsearch "content"       # 使用模糊查询
 rsearch "" tag          # 搜索标签所有数据
 rsearch "content" tag   # 搜索标签中匹配数据
+rsearch tags            # 查看所有标签
 ```

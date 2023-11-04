@@ -5,11 +5,11 @@ import (
     "github.com/olekukonko/tablewriter"
     "github.com/urfave/cli/v2"
     "os"
+    "rsearch/common"
     "strings"
 )
 
 func Runs(ctx *cli.Context) error {
-
     token := ctx.String("token")
     if len(token) < 1 {
         token = fetchToken()
@@ -29,6 +29,7 @@ func Runs(ctx *cli.Context) error {
             table.Append([]string{strings.ReplaceAll(val.GetName(), ".md", "")})
         }
     }
+    table.Append([]string{common.GoTagName})
     table.Render()
 
     return nil

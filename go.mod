@@ -7,6 +7,7 @@ require (
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/glebarez/sqlite v1.9.0
 	github.com/google/go-github/v48 v48.2.0
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pibigstar/termcolor v1.0.0
 	github.com/sirupsen/logrus v1.9.3

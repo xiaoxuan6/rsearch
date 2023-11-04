@@ -1,7 +1,9 @@
 package main
 
 import (
+    "fmt"
     "github.com/common-nighthawk/go-figure"
+    "github.com/mitchellh/go-homedir"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "os"
@@ -13,15 +15,15 @@ import (
 )
 
 func main() {
-    firstArg := os.Args[0]
-    _, file := filepath.Split(firstArg)
+    dir, err := homedir.Dir()
+    if err != nil {
+        fmt.Println(err.Error())
+        os.Exit(-1)
+    }
 
-    var basePath string
-    if file == "main.exe" {
-        basePath = "."
-    } else {
-        ex, _ := os.Executable()
-        basePath = filepath.Dir(ex)
+    basePath := filepath.Join(dir, "/.rsearch")
+    if _, err = os.Stat(basePath); os.IsNotExist(err) {
+        _ = os.Mkdir(basePath, os.ModePerm)
     }
 
     common.InitDb(basePath + "/" + common.SqlitePath)
@@ -102,7 +104,7 @@ func main() {
         },
     }
 
-    if err := app.Run(os.Args); err != nil {
+    if err = app.Run(os.Args); err != nil {
         logrus.Error(err.Error())
     }
 }
