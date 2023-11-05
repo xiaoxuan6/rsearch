@@ -14,6 +14,8 @@ import (
     "strings"
 )
 
+var Version string
+
 func main() {
     dir, err := homedir.Dir()
     if err != nil {
@@ -100,6 +102,16 @@ func main() {
                 Description: figure.NewFigure("rsearch tags", "", true).String(),
                 Action:      commands.Runs,
                 Flags:       commands.Flags(),
+            },
+            {
+                Name:        "version",
+                Usage:       "查看版本号",
+                Aliases:     []string{"v"},
+                Description: figure.NewFigure("rsearch version", "", true).String(),
+                Action: func(context *cli.Context) error {
+                    logrus.Info("rsearch version: " + Version)
+                    return nil
+                },
             },
         },
     }
