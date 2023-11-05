@@ -14,8 +14,6 @@ import (
 )
 
 func Exec(c *cli.Context) error {
-    _ = common.DeleteByTag(common.GoTagName)
-
     b, err2 := fileGetContent()
     if err2 != nil {
         return err2
@@ -39,7 +37,10 @@ func Exec(c *cli.Context) error {
             })
         }
     }
-
+    
+    if len(modelsSlice) > 0 {
+        _ = common.DeleteByTag(common.GoTagName)
+    }
     err2 = common.CreateInBatches(modelsSlice)
     if err2 != nil {
         logrus.Error("数据插入失败：" + err2.Error())
