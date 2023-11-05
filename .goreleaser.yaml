@@ -11,7 +11,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X main.Version=v{{.Version}}
+      - -s -w -X main.version=v{{.Version}}
     goos:
       - windows
     goarch:
@@ -19,7 +19,7 @@ builds:
       - arm64
 
 archives:
-  - format: zip
+  - format: binary
     name_template: >-
       {{ .ProjectName }}_v{{ .Version }}_
       {{- title .Os }}_
@@ -27,3 +27,13 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - none*
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^merge:'
+      - '^docs:'
+      - '^test:'

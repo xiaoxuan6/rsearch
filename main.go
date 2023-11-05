@@ -14,7 +14,7 @@ import (
     "strings"
 )
 
-var Version string
+var version string
 
 func main() {
     dir, err := homedir.Dir()
@@ -24,14 +24,8 @@ func main() {
     }
 
     basePath := filepath.Join(dir, "/.rsearch")
-    if _, err = os.Stat(basePath); os.IsNotExist(err) {
-        _ = os.Mkdir(basePath, os.ModePerm)
-    }
-
     common.InitDb(basePath + "/" + common.SqlitePath)
-    defer func() {
-        common.CloseDb()
-    }()
+    defer common.CloseDb()
 
     if len(os.Args) > 1 {
         commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h"}
@@ -109,7 +103,7 @@ func main() {
                 Aliases:     []string{"v"},
                 Description: figure.NewFigure("rsearch version", "", true).String(),
                 Action: func(context *cli.Context) error {
-                    logrus.Info("rsearch version: " + Version)
+                    logrus.Info("rsearch version: " + version)
                     return nil
                 },
             },
