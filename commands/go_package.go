@@ -2,6 +2,8 @@ package commands
 
 import (
     "errors"
+    "fmt"
+    "github.com/avast/retry-go"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
@@ -47,16 +49,30 @@ func Exec(c *cli.Context) error {
 }
 
 func fileGetContent() (b []byte, err error) {
-    response, err := http.Get(common.GoPackageRepository)
-    if err != nil {
-        return b, errors.New("请求错误：" + err.Error())
-    }
+    err = retry.Do(
+        func() error {
+            response, err1 := http.Get(common.GoPackageRepository)
+            if err1 != nil {
+                return errors.New("请求错误：" + err1.Error())
+            }
 
-    defer response.Body.Close()
+            defer response.Body.Close()
+            b, err1 = ioutil.ReadAll(response.Body)
+            if err1 != nil {
+                return errors.New("获取内容失败：" + err1.Error())
+            }
 
-    b, err = ioutil.ReadAll(response.Body)
+            return nil
+        },
+        retry.Attempts(3),
+        retry.OnRetry(func(n uint, err error) {
+            logrus.Info(fmt.Sprintf("请求失败，第 %d 次重试", n+1))
+        }),
+        retry.LastErrorOnly(true),
+    )
+
     if err != nil {
-        return b, errors.New("获取内容失败：" + err.Error())
+        return b, err
     }
 
     return b, nil

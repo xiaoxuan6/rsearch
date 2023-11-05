@@ -3,6 +3,7 @@ module github.com/xiaoxuan6/rsearch
 go 1.18
 
 require (
+	github.com/avast/retry-go v2.7.0+incompatible
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/glebarez/sqlite v1.10.0
