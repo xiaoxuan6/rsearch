@@ -1,16 +1,19 @@
 package commands
 
 import (
+    "bufio"
     "errors"
     "fmt"
     "github.com/avast/retry-go"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
+    "io"
     "io/ioutil"
     "net/http"
     "regexp"
     "strings"
+    "time"
 )
 
 func Exec(c *cli.Context) error {
@@ -19,25 +22,26 @@ func Exec(c *cli.Context) error {
         return err2
     }
 
-    newContent := string(b)
-    replacements := []string{"# Go 开源第三方包收集和使用示例", "|分支名|包名|描述|", "|:---|:---|:---|"}
-    for _, replaceOld := range replacements {
-        newContent = strings.ReplaceAll(newContent, replaceOld, ``)
-    }
-    newContent = strings.Trim(newContent, "\n")
-    contents := strings.Split(newContent, "\n")
     var modelsSlice []common.Model
-    for _, val := range contents {
-        regexpStr := regexpContent(val)
-        if regexpStr != nil {
-            modelsSlice = append(modelsSlice, common.Model{
-                Title: regexpStr[3],
-                Tag:   common.GoTagName,
-                Url:   regexpStr[2],
-            })
+    br := bufio.NewReader(strings.NewReader(string(b)))
+    for {
+        a, _, errs := br.ReadLine()
+        if errs == io.EOF {
+            break
         }
+
+        re := regexpContent(string(a))
+        if len(re) < 3 {
+            continue
+        }
+
+        modelsSlice = append(modelsSlice, common.Model{
+            Title: re[3],
+            Tag:   common.GoTagName,
+            Url:   re[2],
+        })
     }
-    
+
     if len(modelsSlice) > 0 {
         _ = common.DeleteByTag(common.GoTagName)
     }
@@ -46,18 +50,26 @@ func Exec(c *cli.Context) error {
         logrus.Error("数据插入失败：" + err2.Error())
     }
 
+    logrus.Info("sync successfully")
     return nil
 }
 
 func fileGetContent() (b []byte, err error) {
     err = retry.Do(
         func() error {
-            response, err1 := http.Get(common.GoPackageRepository)
+            client := http.Client{
+                Timeout: 5 * time.Second,
+            }
+
+            response, err1 := client.Get(common.GoPackageRepository)
             if err1 != nil {
                 return errors.New("请求错误：" + err1.Error())
             }
 
-            defer response.Body.Close()
+            defer func() {
+                _ = response.Body.Close()
+            }()
+
             b, err1 = ioutil.ReadAll(response.Body)
             if err1 != nil {
                 return errors.New("获取内容失败：" + err1.Error())

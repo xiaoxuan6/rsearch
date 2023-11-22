@@ -39,7 +39,6 @@ func Run(ctx *cli.Context) error {
         filename := val.GetName()
         if strings.HasSuffix(filename, ".md") {
             wg.Add(1)
-            logrus.Info("正在同步文件：" + filename)
             go fetchUrlContent(c, client, filename, &wg)
         }
     }

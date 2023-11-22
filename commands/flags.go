@@ -6,17 +6,15 @@ import (
     "strings"
 )
 
-func Flags() (f []cli.Flag) {
-    f = append(f,
+func Flags() []cli.Flag {
+    return []cli.Flag{
         &cli.StringFlag{
             Name:     "token",
             Aliases:  []string{"t"},
             Required: false,
             Value:    "",
         },
-    )
-
-    return
+    }
 }
 
 func fetchToken() string {

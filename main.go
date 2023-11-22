@@ -28,7 +28,7 @@ func main() {
     defer common.CloseDb()
 
     if len(os.Args) > 1 {
-        commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h"}
+        commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h", "v", "version"}
 
         target := false
         param := os.Args[1]
