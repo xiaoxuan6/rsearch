@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "github.com/common-nighthawk/go-figure"
+    "github.com/fatih/color"
     "github.com/mitchellh/go-homedir"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
@@ -44,7 +45,7 @@ func main() {
                 Usage: "清空所有数据",
                 Action: func(context *cli.Context) error {
                     _ = common.Flush()
-                    logrus.Info("数据清空成功")
+                    fmt.Print(color.GreenString("数据清空成功！"))
                     return nil
                 },
             },
@@ -53,7 +54,7 @@ func main() {
                 Usage: "查询数据总条数",
                 Action: func(context *cli.Context) error {
                     num := common.Count()
-                    logrus.Info("数据库总条数为：" + strconv.Itoa(int(num)))
+                    fmt.Print("数据库总条数为：" + strconv.Itoa(int(num)))
                     return nil
                 },
             },
@@ -63,7 +64,7 @@ func main() {
                 Aliases:     []string{"v"},
                 Description: figure.NewFigure("rsearch version", "", true).String(),
                 Action: func(context *cli.Context) error {
-                    logrus.Info("rsearch version: " + version)
+                    fmt.Println("rsearch version: " + color.GreenString(version))
                     return nil
                 },
             },

@@ -6,6 +6,7 @@ import (
     "fmt"
     "github.com/avast/retry-go"
     "github.com/common-nighthawk/go-figure"
+    "github.com/fatih/color"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
@@ -58,11 +59,11 @@ func Exec(c *cli.Context) error {
 
     err2 = common.CreateInBatches(modelsSlice)
     if err2 != nil {
-        logrus.Error("数据插入失败：" + err2.Error())
+        fmt.Println(color.RedString("数据插入失败：" + err2.Error()))
         return nil
     }
 
-    logrus.Info("sync successfully")
+    fmt.Print(color.GreenString("sync successfully"))
     return nil
 }
 

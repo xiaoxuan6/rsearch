@@ -5,6 +5,7 @@ import (
     "errors"
     "fmt"
     "github.com/common-nighthawk/go-figure"
+    "github.com/fatih/color"
     "github.com/google/go-github/v48/github"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
@@ -31,12 +32,12 @@ var (
 func Run(ctx *cli.Context) error {
     token := common.GetToken(ctx.String("token"))
     if token == "" {
-        return errors.New("github token not empty")
+        return errors.New(color.RedString("github token not empty"))
     }
 
     err = common.Clear()
     if err != nil {
-        return errors.New(fmt.Sprintf("清空数据失败：%s", err.Error()))
+        return errors.New(color.RedString("清空数据失败：%s", err.Error()))
     }
 
     common.SpinnerStart("sync doing...")
@@ -53,7 +54,7 @@ func Run(ctx *cli.Context) error {
     wg.Wait()
     common.SpinnerStop()
 
-    logrus.Info("sync successfully")
+    fmt.Print(color.GreenString("sync successfully"))
     return nil
 }
 
@@ -104,7 +105,7 @@ func fetchFileContent(b []byte, tag string) {
 
     err2 := common.CreateInBatches(ms)
     if err2 != nil {
-        logrus.Error("数据插入失败：" + err2.Error())
+        fmt.Println(color.RedString("数据插入失败：" + err2.Error()))
     }
 }
 
