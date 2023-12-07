@@ -28,30 +28,7 @@ func main() {
     defer common.CloseDb()
 
     if len(os.Args) > 1 {
-        commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h", "v", "version"}
-
-        target := false
-        param := os.Args[1]
-        for _, val := range commandNames {
-            if strings.Compare(param, val) == 0 {
-                target = true
-                continue
-            }
-        }
-
-        if target == false {
-            if param == common.GoTagName {
-                commands.TermRenderer()
-                os.Exit(0)
-            }
-
-            tag := ""
-            if len(os.Args) == 3 {
-                tag = os.Args[2]
-            }
-            commands.Search(param, tag)
-            os.Exit(0)
-        }
+        search()
     }
 
     app := cli.App{
@@ -59,13 +36,9 @@ func main() {
         Usage:       "rsearch",
         Description: figure.NewFigure("rsearch", "", true).String(),
         Commands: []*cli.Command{
-            {
-                Name:        common.CommandName,
-                Usage:       common.CommandUsage,
-                Description: figure.NewFigure("rsearch sync", "", true).String() + common.CommandUsage,
-                Action:      commands.Run,
-                Flags:       commands.Flags(),
-            },
+            commands.SyncCommand,
+            commands.TagCommand,
+            commands.GoPackageCommand,
             {
                 Name:  "clear",
                 Usage: "清空所有数据",
@@ -85,19 +58,6 @@ func main() {
                 },
             },
             {
-                Name:        common.GoCommandName,
-                Usage:       common.GoCommandUsage,
-                Description: figure.NewFigure("rsearch sync-go", "", true).String() + common.GoCommandUsage,
-                Action:      commands.Exec,
-            },
-            {
-                Name:        "tags",
-                Usage:       "获取所有的标签",
-                Description: figure.NewFigure("rsearch tags", "", true).String(),
-                Action:      commands.Runs,
-                Flags:       commands.Flags(),
-            },
-            {
                 Name:        "version",
                 Usage:       "查看版本号",
                 Aliases:     []string{"v"},
@@ -112,5 +72,32 @@ func main() {
 
     if err = app.Run(os.Args); err != nil {
         logrus.Error(err.Error())
+    }
+}
+
+func search() {
+    commandNames := []string{common.CommandName, common.GoCommandName, "count", "clear", "tags", "--help", "-h", "v", "version"}
+
+    target := false
+    param := os.Args[1]
+    for _, val := range commandNames {
+        if strings.Compare(param, val) == 0 {
+            target = true
+            continue
+        }
+    }
+
+    if target == false {
+        if param == common.GoTagName {
+            commands.TermRenderer()
+            os.Exit(0)
+        }
+
+        tag := ""
+        if len(os.Args) == 3 {
+            tag = os.Args[2]
+        }
+        commands.Search(param, tag)
+        os.Exit(0)
     }
 }

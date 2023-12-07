@@ -4,6 +4,7 @@ import (
     "context"
     "errors"
     "fmt"
+    "github.com/common-nighthawk/go-figure"
     "github.com/google/go-github/v48/github"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
@@ -14,16 +15,21 @@ import (
     "sync"
 )
 
-var wg sync.WaitGroup
-var c = context.Background()
+var (
+    wg          sync.WaitGroup
+    client      *github.Client
+    c           = context.Background()
+    SyncCommand = &cli.Command{
+        Name:        common.CommandName,
+        Usage:       common.CommandUsage,
+        Description: figure.NewFigure("rsearch "+common.CommandName, "", true).String() + common.CommandUsage,
+        Action:      Run,
+        Flags:       Flags,
+    }
+)
 
 func Run(ctx *cli.Context) error {
-
-    token := ctx.String("token")
-    if len(token) < 1 {
-        token = fetchToken()
-    }
-
+    token := common.GetToken(ctx.String("token"))
     if token == "" {
         return errors.New("github token not empty")
     }
@@ -33,53 +39,53 @@ func Run(ctx *cli.Context) error {
         return errors.New(fmt.Sprintf("清空数据失败：%s", err.Error()))
     }
 
-    client := fetchClient(token)
-    directoryContent := fetchRepositoryContent(client)
+    common.SpinnerStart("sync doing...")
+    newClient(token)
+    directoryContent := fetchRepositoryContent()
     for _, val := range directoryContent {
         filename := val.GetName()
         if strings.HasSuffix(filename, ".md") {
             wg.Add(1)
-            go fetchUrlContent(c, client, filename, &wg)
+            go fetchUrlContent(c, filename, &wg)
         }
     }
 
     wg.Wait()
-    logrus.Info("sync successfully")
+    common.SpinnerStop()
 
+    logrus.Info("sync successfully")
     return nil
 }
 
-func fetchClient(token string) *github.Client {
+func newClient(token string) {
     oauth := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
-    client := github.NewClient(oauth)
-
-    return client
+    client = github.NewClient(oauth)
 }
 
-func fetchRepositoryContent(client *github.Client) []*github.RepositoryContent {
+func fetchRepositoryContent() []*github.RepositoryContent {
     _, directoryContent, _, _ := client.Repositories.GetContents(c, common.Owner, common.Repo, "", &github.RepositoryContentGetOptions{})
     return directoryContent
 }
 
-func fetchUrlContent(ctx context.Context, client *github.Client, filename string, wg *sync.WaitGroup) {
+func fetchUrlContent(ctx context.Context, filename string, wg *sync.WaitGroup) {
+    defer wg.Done()
+
     RepositoryContent, _, _, err2 := client.Repositories.GetContents(ctx, common.Owner, common.Repo, filename, &github.RepositoryContentGetOptions{})
     if err2 != nil {
         logrus.Error(err2.Error())
-        wg.Done()
         return
     }
 
     content, err3 := RepositoryContent.GetContent()
     if err3 != nil {
-        wg.Done()
+        logrus.Error(err3.Error())
         return
     }
 
-    fetchFileContent(wg, []byte(content), strings.ReplaceAll(filename, ".md", ""))
+    fetchFileContent([]byte(content), strings.ReplaceAll(filename, ".md", ""))
 }
 
-func fetchFileContent(wg *sync.WaitGroup, b []byte, tag string) {
-    defer wg.Done()
+func fetchFileContent(b []byte, tag string) {
     strContent := strings.Split(string(b), "\n")
     var ms []common.Model
     for _, value := range strContent {

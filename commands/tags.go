@@ -2,6 +2,7 @@ package commands
 
 import (
     "errors"
+    "github.com/common-nighthawk/go-figure"
     "github.com/olekukonko/tablewriter"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
@@ -9,18 +10,26 @@ import (
     "strings"
 )
 
-func Runs(ctx *cli.Context) error {
-    token := ctx.String("token")
-    if len(token) < 1 {
-        token = fetchToken()
-    }
+const tagCommandName = "tags"
 
+var TagCommand = &cli.Command{
+    Name:        tagCommandName,
+    Usage:       "获取所有的标签",
+    Description: figure.NewFigure("rsearch "+tagCommandName, "", true).String(),
+    Action:      Runs,
+    Flags:       Flags,
+}
+
+func Runs(ctx *cli.Context) error {
+    token := common.GetToken(ctx.String("token"))
     if token == "" {
         return errors.New("github token not empty")
     }
 
-    client := fetchClient(token)
-    directoryContent := fetchRepositoryContent(client)
+    common.SpinnerStart("doing...")
+    newClient(token)
+    directoryContent := fetchRepositoryContent()
+    common.SpinnerStop()
 
     table := tablewriter.NewWriter(os.Stdout)
     table.SetHeader([]string{"标签"})

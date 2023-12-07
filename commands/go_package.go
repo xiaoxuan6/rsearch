@@ -5,6 +5,7 @@ import (
     "errors"
     "fmt"
     "github.com/avast/retry-go"
+    "github.com/common-nighthawk/go-figure"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
@@ -16,12 +17,20 @@ import (
     "time"
 )
 
+var GoPackageCommand = &cli.Command{
+    Name:        common.GoCommandName,
+    Usage:       common.GoCommandUsage,
+    Description: figure.NewFigure("rsearch "+common.GoCommandName, "", true).String() + common.GoCommandUsage,
+    Action:      Exec,
+}
+
 func Exec(c *cli.Context) error {
     b, err2 := fileGetContent()
     if err2 != nil {
         return err2
     }
 
+    common.SpinnerStart("sync go doing...")
     var modelsSlice []common.Model
     br := bufio.NewReader(strings.NewReader(string(b)))
     for {
@@ -42,12 +51,15 @@ func Exec(c *cli.Context) error {
         })
     }
 
+    common.SpinnerStop()
     if len(modelsSlice) > 0 {
         _ = common.DeleteByTag(common.GoTagName)
     }
+
     err2 = common.CreateInBatches(modelsSlice)
     if err2 != nil {
         logrus.Error("数据插入失败：" + err2.Error())
+        return nil
     }
 
     logrus.Info("sync successfully")
