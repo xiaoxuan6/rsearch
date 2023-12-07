@@ -3,8 +3,8 @@ package commands
 import (
     "errors"
     "github.com/common-nighthawk/go-figure"
-    "github.com/fatih/color"
     "github.com/olekukonko/tablewriter"
+    "github.com/pibigstar/termcolor"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
     "os"
@@ -24,7 +24,7 @@ var TagCommand = &cli.Command{
 func Runs(ctx *cli.Context) error {
     token := common.GetToken(ctx.String("token"))
     if token == "" {
-        return errors.New(color.RedString("github token not empty"))
+        return errors.New(termcolor.FgRed("github token not empty"))
     }
 
     common.SpinnerStart("doing...")

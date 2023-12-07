@@ -3,8 +3,8 @@ package main
 import (
     "fmt"
     "github.com/common-nighthawk/go-figure"
-    "github.com/fatih/color"
     "github.com/mitchellh/go-homedir"
+    "github.com/pibigstar/termcolor"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/commands"
@@ -45,7 +45,7 @@ func main() {
                 Usage: "清空所有数据",
                 Action: func(context *cli.Context) error {
                     _ = common.Flush()
-                    fmt.Print(color.GreenString("数据清空成功！"))
+                    fmt.Print(termcolor.FgGreen("数据清空成功！"))
                     return nil
                 },
             },
@@ -64,7 +64,7 @@ func main() {
                 Aliases:     []string{"v"},
                 Description: figure.NewFigure("rsearch version", "", true).String(),
                 Action: func(context *cli.Context) error {
-                    fmt.Println("rsearch version: " + color.GreenString(version))
+                    fmt.Println("rsearch version: " + termcolor.FgGreen(version))
                     return nil
                 },
             },

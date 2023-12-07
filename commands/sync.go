@@ -5,8 +5,8 @@ import (
     "errors"
     "fmt"
     "github.com/common-nighthawk/go-figure"
-    "github.com/fatih/color"
     "github.com/google/go-github/v48/github"
+    "github.com/pibigstar/termcolor"
     "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
@@ -32,12 +32,12 @@ var (
 func Run(ctx *cli.Context) error {
     token := common.GetToken(ctx.String("token"))
     if token == "" {
-        return errors.New(color.RedString("github token not empty"))
+        return errors.New(termcolor.FgRed("github token not empty"))
     }
 
     err = common.Clear()
     if err != nil {
-        return errors.New(color.RedString("清空数据失败：%s", err.Error()))
+        return errors.New(termcolor.FgRed(fmt.Sprintf("清空数据失败：%s", err.Error())))
     }
 
     common.SpinnerStart("sync doing...")
@@ -54,7 +54,7 @@ func Run(ctx *cli.Context) error {
     wg.Wait()
     common.SpinnerStop()
 
-    fmt.Print(color.GreenString("sync successfully"))
+    fmt.Print(termcolor.FgGreen("sync successfully"))
     return nil
 }
 
@@ -105,7 +105,7 @@ func fetchFileContent(b []byte, tag string) {
 
     err2 := common.CreateInBatches(ms)
     if err2 != nil {
-        fmt.Println(color.RedString("数据插入失败：" + err2.Error()))
+        fmt.Println(termcolor.FgRed("数据插入失败：" + err2.Error()))
     }
 }
 
