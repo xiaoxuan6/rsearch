@@ -28,8 +28,8 @@ func Runs(ctx *cli.Context) error {
     }
 
     common.SpinnerStart("doing...")
-    newClient(token)
-    directoryContent := fetchRepositoryContent()
+    common.NewClient(token)
+    directoryContent := common.FetchRepositoryContent()
     common.SpinnerStop()
 
     table := tablewriter.NewWriter(os.Stdout)

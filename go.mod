@@ -8,6 +8,7 @@ require (
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/glebarez/sqlite v1.10.0
+	github.com/gofri/go-github-ratelimit v1.1.0
 	github.com/google/go-github/v48 v48.2.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/olekukonko/tablewriter v0.0.5

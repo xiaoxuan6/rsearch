@@ -2,20 +2,14 @@ package commands
 
 import (
     "bufio"
-    "errors"
     "fmt"
-    "github.com/avast/retry-go"
     "github.com/common-nighthawk/go-figure"
     "github.com/pibigstar/termcolor"
-    "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
     "io"
-    "io/ioutil"
-    "net/http"
     "regexp"
     "strings"
-    "time"
 )
 
 var GoPackageCommand = &cli.Command{
@@ -68,40 +62,22 @@ func Exec(c *cli.Context) error {
 }
 
 func fileGetContent() (b []byte, err error) {
-    err = retry.Do(
-        func() error {
-            client := http.Client{
-                Timeout: 5 * time.Second,
-            }
-
-            response, err1 := client.Get(common.GoPackageRepository)
-            if err1 != nil {
-                return errors.New("请求错误：" + err1.Error())
-            }
-
-            defer func() {
-                _ = response.Body.Close()
-            }()
-
-            b, err1 = ioutil.ReadAll(response.Body)
-            if err1 != nil {
-                return errors.New("获取内容失败：" + err1.Error())
-            }
-
-            return nil
-        },
-        retry.Attempts(3),
-        retry.OnRetry(func(n uint, err error) {
-            logrus.Info(fmt.Sprintf("请求失败，第 %d 次重试", n+1))
-        }),
-        retry.LastErrorOnly(true),
-    )
+GET:
+    url, count := common.GoPackageRawRepository, 1
+    b, err = common.Get(url)
 
     if err != nil {
-        return b, err
+        count = count - 1
+
+        if count == 0 {
+            url = common.GoPackageJsdelivrRepository
+            goto GET
+        }
+
+        return nil, err
     }
 
-    return b, nil
+    return
 }
 
 func regexpContent(val string) []string {

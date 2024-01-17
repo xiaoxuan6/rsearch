@@ -5,12 +5,9 @@ import (
     "errors"
     "fmt"
     "github.com/common-nighthawk/go-figure"
-    "github.com/google/go-github/v48/github"
     "github.com/pibigstar/termcolor"
-    "github.com/sirupsen/logrus"
     "github.com/urfave/cli/v2"
     "github.com/xiaoxuan6/rsearch/common"
-    "golang.org/x/oauth2"
     "regexp"
     "strings"
     "sync"
@@ -18,7 +15,6 @@ import (
 
 var (
     wg          sync.WaitGroup
-    client      *github.Client
     c           = context.Background()
     SyncCommand = &cli.Command{
         Name:        common.CommandName,
@@ -41,13 +37,21 @@ func Run(ctx *cli.Context) error {
     }
 
     common.SpinnerStart("sync doing...")
-    newClient(token)
-    directoryContent := fetchRepositoryContent()
+    common.NewClient(token)
+    directoryContent := common.FetchRepositoryContent()
     for _, val := range directoryContent {
         filename := val.GetName()
         if strings.HasSuffix(filename, ".md") {
             wg.Add(1)
-            go fetchUrlContent(c, filename, &wg)
+            go func(filename string) {
+                defer wg.Done()
+                body, tag, err1 := common.FetchUrlContent(c, filename)
+                if err1 != nil {
+                    return
+                }
+
+                fetchFileContent(body, tag)
+            }(filename)
         }
     }
 
@@ -56,34 +60,6 @@ func Run(ctx *cli.Context) error {
 
     fmt.Print(termcolor.FgGreen("sync successfully"))
     return nil
-}
-
-func newClient(token string) {
-    oauth := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token}))
-    client = github.NewClient(oauth)
-}
-
-func fetchRepositoryContent() []*github.RepositoryContent {
-    _, directoryContent, _, _ := client.Repositories.GetContents(c, common.Owner, common.Repo, "", &github.RepositoryContentGetOptions{})
-    return directoryContent
-}
-
-func fetchUrlContent(ctx context.Context, filename string, wg *sync.WaitGroup) {
-    defer wg.Done()
-
-    RepositoryContent, _, _, err2 := client.Repositories.GetContents(ctx, common.Owner, common.Repo, filename, &github.RepositoryContentGetOptions{})
-    if err2 != nil {
-        logrus.Error(err2.Error())
-        return
-    }
-
-    content, err3 := RepositoryContent.GetContent()
-    if err3 != nil {
-        logrus.Error(err3.Error())
-        return
-    }
-
-    fetchFileContent([]byte(content), strings.ReplaceAll(filename, ".md", ""))
 }
 
 func fetchFileContent(b []byte, tag string) {
