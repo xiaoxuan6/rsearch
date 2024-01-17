@@ -1,6 +1,7 @@
 package main
 
 import (
+    context2 "context"
     "fmt"
     "github.com/common-nighthawk/go-figure"
     "github.com/mitchellh/go-homedir"
@@ -64,6 +65,18 @@ func main() {
                 Aliases:     []string{"v"},
                 Description: figure.NewFigure("rsearch version", "", true).String(),
                 Action: func(context *cli.Context) error {
+
+                    if len(version) < 1 {
+                        common.NewClient(common.GetToken(""))
+
+                        tags, _, err := common.Client.Repositories.ListTags(context2.Background(), common.Owner, "rsearch", nil)
+                        if err != nil {
+                            return nil
+                        }
+
+                        version = *tags[0].Name
+                    }
+
                     fmt.Println("rsearch version: " + termcolor.FgGreen(version))
                     return nil
                 },
