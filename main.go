@@ -69,8 +69,8 @@ func main() {
                     if len(version) < 1 {
                         common.NewClient(common.GetToken(""))
 
-                        tags, _, err := common.Client.Repositories.ListTags(context2.Background(), common.Owner, "rsearch", nil)
-                        if err != nil {
+                        tags, _, errs := common.Client.Repositories.ListTags(context2.Background(), common.Owner, "rsearch", nil)
+                        if errs != nil {
                             return nil
                         }
 
@@ -102,11 +102,6 @@ func search() {
     }
 
     if target == false {
-        if param == common.GoTagName {
-            commands.TermRenderer()
-            os.Exit(0)
-        }
-
         tag := ""
         if len(os.Args) == 3 {
             tag = os.Args[2]

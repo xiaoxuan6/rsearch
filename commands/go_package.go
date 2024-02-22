@@ -20,7 +20,8 @@ var GoPackageCommand = &cli.Command{
 }
 
 func Exec(c *cli.Context) error {
-    b, err2 := fileGetContent()
+    b, err2 := common.Get("https://github.moeyy.xyz/https://raw.githubusercontent.com/xiaoxuan6/go-package-example/main/README.md")
+
     if err2 != nil {
         return err2
     }
@@ -59,25 +60,6 @@ func Exec(c *cli.Context) error {
 
     fmt.Print(termcolor.FgGreen("sync successfully"))
     return nil
-}
-
-func fileGetContent() (b []byte, err error) {
-GET:
-    url, count := common.GoPackageRawRepository, 1
-    b, err = common.Get(url)
-
-    if err != nil {
-        count = count - 1
-
-        if count == 0 {
-            url = common.GoPackageJsdelivrRepository
-            goto GET
-        }
-
-        return nil, err
-    }
-
-    return
 }
 
 func regexpContent(val string) []string {

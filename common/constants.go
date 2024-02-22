@@ -10,7 +10,4 @@ const GoTagName = "go-package"
 const GoCommandName = "sync-go"
 const GoCommandUsage = "同步远程 go package 保存到本地 sqlite 数据库"
 
-const GoPackageRawRepository = "https://raw.fgit.cf/xiaoxuan6/go-package-example/main/README.md"
-const GoPackageJsdelivrRepository = "https: //fastly.jsdelivr.net/gh/xiaoxuan6/go-package-example@main/README.md"
-
 const SqlitePath = "rsearch.db"

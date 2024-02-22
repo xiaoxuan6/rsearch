@@ -1,8 +1,6 @@
 package commands
 
 import (
-    "fmt"
-    "github.com/charmbracelet/glamour"
     "github.com/olekukonko/tablewriter"
     "github.com/pibigstar/termcolor"
     "github.com/sirupsen/logrus"
@@ -74,19 +72,4 @@ func replaceKeyword(title, keyword string) string {
     }
 
     return title
-}
-
-func TermRenderer() {
-    b, err2 := fileGetContent()
-    if err2 != nil {
-        logrus.Error(err.Error())
-        return
-    }
-
-    tr, _ := glamour.NewTermRenderer(
-        glamour.WithWordWrap(150),
-        glamour.WithStylePath("dark"),
-    )
-    out, _ := tr.Render(string(b))
-    fmt.Print(out)
 }
